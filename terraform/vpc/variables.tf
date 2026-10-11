@@ -1,39 +1,33 @@
-variable "region"{
-    description = "Aws region"
-    type = string
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "ap-south-1"
 }
 
-variable "vpc_name" {
-  description = "Name of Vpc"
-  type = string
+variable "environment_name" {
+  description = "Environment name"
+  type        = string
+  default     = "dev"
 }
 
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
   type        = string
+  default     = "10.0.0.0/16"
 }
 
-variable "azs" {
-  description = "Availability zones"
-  type        = list(string)
+variable "subnet_newbits" {
+  description = "New bits for subnet calculation"
+  type        = number
+  default     = 8
 }
 
-variable "private_subnets" {
-  description = "Private subnet CIDRs"
-  type        = list(string)
-}
-
-variable "public_subnets" {
-  description = "Public subnet CIDRs"
-  type        = list(string)
-}
-
-variable "project" {
-  description = "Name of Project"
-  type =   string
-}
-
-variable "environment" {
-  description = "Environment name"
-  type        = string
+variable "tags" {
+  description = "Tags for all resources"
+  type        = map(string)
+  default = {
+    Terraform   = "true"
+    Project     = "devops-platform"
+    Owner       = "Deeksha"
+  }
 }
