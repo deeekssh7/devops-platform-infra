@@ -1,0 +1,62 @@
+image:
+  repository: public.ecr.aws/aws-containers/retail-store-sample-ui
+  pullPolicy: IfNotPresent
+  tag: ""
+
+app:
+  theme: green
+  endpoints:
+    catalog: http://catalog.retail-store.svc.cluster.local:80
+    carts: http://carts.retail-store.svc.cluster.local:80
+    checkout: http://checkout.retail-store.svc.cluster.local:80
+    orders: http://orders.retail-store.svc.cluster.local:80
+  chat:
+    enabled: false
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/liveness
+
+resources:
+  limits:
+    cpu: 512m
+    memory: 512Mi
+  requests:
+    cpu: 256m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector:
+  karpenter.sh/capacity-type: spot
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: ui
+        app.kubernetes.io/instance: ui
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: ui
+        app.kubernetes.io/instance: ui
+
+podDisruptionBudget:
+  enabled: false
+
+opentelemetry:
+  enabled: true
+  instrumentation: "default-instrumentation"

@@ -12,3 +12,7 @@ crash.log
 
 # OS
 .DS_Store
+
+#helm
+helm/practice/
+

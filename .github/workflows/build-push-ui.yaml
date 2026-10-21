@@ -1,0 +1,82 @@
+name: Build and Push UI Service to ECR
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "src/ui/**"
+      #- ".github/workflows/build-push-ui.yaml"
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: retail-store/ui
+
+jobs:
+  build-and-push-ui:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Define image tags
+        id: vars
+        run: |
+          SHA_TAG=sha-${GITHUB_SHA::7}
+          IMAGE_BASE="${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}"
+          echo "IMAGE_BASE=$IMAGE_BASE" >> $GITHUB_ENV
+          echo "TAGS=latest $SHA_TAG" >> $GITHUB_ENV
+          echo "Using tags: latest and $SHA_TAG"
+
+      - name: Build and push Docker images
+        run: |
+          for tag in $TAGS; do
+            IMAGE_URI="$IMAGE_BASE:$tag"
+            echo "Building and pushing $IMAGE_URI"
+            docker build -t $IMAGE_URI src/ui
+            docker push $IMAGE_URI
+          done
+
+      - name: Setup Git auth using GITHUB_TOKEN   #- This step has a completely different purpose: it prepares Git to commit and push the updated Helm file back to GitHub.
+        run: |
+          git config --global user.name "ci-bot"
+          git config --global user.email "ci-bot@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git    
+
+          #- Configure GitHub authentication to push Helm changes
+
+      - name: Update Helm values file with new image tag
+        run: |
+          sed -i "s|^  tag: .*|  tag: sha-${GITHUB_SHA::7}|" helm/values-ui.yaml
+          git diff --quiet || (  
+            git commit -m "ci: update ui image tag to sha-${GITHUB_SHA::7}"
+            git push origin main
+          )
+
+      - name: CI Complete
+        run: |
+          echo "Image push and Git update done"
+          echo "Tags used: $TAGS"
+
+
+# #- if the command on the left fails (returns a non-zero exit status), execute the command on the right.
+          
+# git diff checks for differences between your working files and the staging area.
+
+
+
+# --quiet means it doesn't print the differences; it just returns an exit status.

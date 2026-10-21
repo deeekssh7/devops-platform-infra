@@ -1,0 +1,61 @@
+image:
+  repository: public.ecr.aws/aws-containers/retail-store-sample-catalog
+  pullPolicy: IfNotPresent
+  tag: ""
+
+mysql:
+  create: false
+
+app:
+  persistence:
+    provider: mysql
+    endpoint: "REPLACE_AFTER_TERRAFORM_APPLY:3306"
+    database: "catalogdb"
+    secret:
+      create: false
+      name: catalog-db
+      useSecretsManager: true
+      secretsManager:
+        secretName: "retailstore-db-secret-1"
+        region: "ap-south-1"
+
+resources:
+  limits:
+    cpu: 512m
+    memory: 512Mi
+  requests:
+    cpu: 256m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 12
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector:
+  karpenter.sh/capacity-type: spot
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: catalog
+        app.kubernetes.io/instance: catalog
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: catalog
+        app.kubernetes.io/instance: catalog
+
+podDisruptionBudget:
+  enabled: false
+
+opentelemetry:
+  enabled: true
+  instrumentation: "default-instrumentation"
