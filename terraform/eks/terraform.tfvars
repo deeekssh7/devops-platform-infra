@@ -7,7 +7,7 @@ business_division = "devops"
 
 # EKS Cluster
 cluster_name              = "platform-eks"
-cluster_version           = "1.29"
+cluster_version           = "1.31"
 cluster_service_ipv4_cidr = "172.20.0.0/16"
 
 # EKS Endpoint Access

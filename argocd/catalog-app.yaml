@@ -11,7 +11,7 @@ spec:
     path: helm/catalog
     helm:
       valueFiles:
-        - ../../values-catalog.yaml
+        - ../values-catalog.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: retail-store

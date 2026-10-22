@@ -11,7 +11,7 @@ spec:
     path: helm/ui
     helm:
       valueFiles:
-        - ../../values-ui.yaml
+        -../values-ui.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: retail-store

@@ -22,7 +22,15 @@ resource "aws_iam_policy" "lbc_iam_policy" {
 # ------------------------------------------------------------------------------
 resource "aws_iam_role" "lbc_iam_role" {
   name               = "${local.name}-lbc-iam-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "pods.eks.amazonaws.com" }
+      Action    = ["sts:AssumeRole", "sts:TagSession"]
+     }]
+   })
+  
 
   tags = merge(var.tags, {
     Name      = "${local.name}-lbc-iam-role"
@@ -87,6 +95,6 @@ resource "helm_release" "loadbalancer_controller" {
   depends_on = [
     aws_iam_role.lbc_iam_role,
     aws_eks_pod_identity_association.lbc,
-    aws_eks_addon.podidentity
+    aws_eks_addon.pod_identity
   ]
 }

@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 output "pod_identity_addon_id" {
   description = "Pod Identity Agent Addon ID"
-  value       = aws_eks_addon.podidentity.id
+  value       = aws_eks_addon.pod_identity.id
 }
 
 # ------------------------------------------------------------------------------

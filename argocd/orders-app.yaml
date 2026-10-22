@@ -11,7 +11,7 @@ spec:
     path: helm/orders
     helm:
       valueFiles:
-        - ../../values-orders.yaml
+        - ../values-orders.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: retail-store

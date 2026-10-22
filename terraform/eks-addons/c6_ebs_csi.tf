@@ -3,7 +3,14 @@
 # ------------------------------------------------------------------------------
 resource "aws_iam_role" "ebs_csi_iam_role" {
   name               = "${local.name}-ebs-csi-iam-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "pods.eks.amazonaws.com" }
+      Action    = ["sts:AssumeRole", "sts:TagSession"]
+    }]
+   })
 
   tags = merge(var.tags, {
     Name      = "${local.name}-ebs-csi-iam-role"
@@ -53,7 +60,7 @@ resource "aws_eks_addon" "ebs_csi" {
   depends_on = [
     aws_iam_role.ebs_csi_iam_role,
     aws_eks_pod_identity_association.ebs_csi,
-    aws_eks_addon.podidentity
+    aws_eks_addon.pod_identity
   ]
 
   tags = merge(var.tags, {

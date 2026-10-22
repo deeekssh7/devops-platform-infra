@@ -5,7 +5,7 @@
 resource "helm_release" "secrets_store_csi_driver" {
   name       = "csi-secrets-store"
   repository = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
-  chart      = "secrets-store-csi-driver"
+  chart      = "./secrets-store-csi-driver-provider-aws-3.1.4.tgz"
   namespace  = "kube-system"
 
   set = [
@@ -24,7 +24,7 @@ resource "helm_release" "secrets_store_csi_driver" {
   cleanup_on_fail = true
 
   depends_on = [
-    aws_eks_addon.podidentity
+    aws_eks_addon.pod_identity
   ]
 }
 
@@ -34,8 +34,7 @@ resource "helm_release" "secrets_store_csi_driver" {
 # ------------------------------------------------------------------------------
 resource "helm_release" "aws_secrets_provider" {
   name       = "secrets-provider-aws"
-  repository = "https://aws.github.io/secrets-store-csi-driver-provider-aws"
-  chart      = "secrets-store-csi-driver-provider-aws"
+  chart      = "./secrets-store-csi-driver-provider-aws-3.1.4.tgz"
   namespace  = "kube-system"
 
   set = [
@@ -50,7 +49,7 @@ resource "helm_release" "aws_secrets_provider" {
   cleanup_on_fail = true
 
   depends_on = [
-    aws_eks_addon.podidentity,
+    aws_eks_addon.pod_identity,
     helm_release.secrets_store_csi_driver
   ]
 }

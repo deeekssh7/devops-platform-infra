@@ -11,7 +11,7 @@ spec:
     path: helm/cart
     helm:
       valueFiles:
-        - ../../values-cart.yaml
+        - ../values-cart.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: retail-store

@@ -11,7 +11,7 @@ spec:
     path: helm/checkout
     helm:
       valueFiles:
-        - ../../values-checkout.yaml
+        - ../values-checkout.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: retail-store
